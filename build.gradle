@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
+}
+
+group = 'com.gabriaum.arcade'
+version = '1.0-SNAPSHOT'
+
+compileJava.options.encoding = 'UTF-8'
+
+bukkit {
+    name = "arcade-pvp"
+    main = "com.gabriaum.arcade.ArcadeMain"
+    version = "1.0.0"
+    author = "gabriaum"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    def lombok = 'org.projectlombok:lombok:1.18.26'
+
+    compileOnly(lombok)
+    annotationProcessor(lombok)
+
+    compileOnly files("C://API/pandaspigot-server-1.8.8-R0.1-SNAPSHOT.jar")
+    compileOnly files('C://Users/gabriaum/Desktop/localhost/plugins/Bukkit.jar')
+    compileOnly files('C://Users/gabriaum/Desktop/localhost/plugins/commonslibs-bukkit.jar')
+}
