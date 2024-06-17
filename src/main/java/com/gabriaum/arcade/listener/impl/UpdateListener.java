@@ -31,9 +31,18 @@ public class UpdateListener implements Listener {
         Location location = feast.getLocation().clone();
         int count = counter.incrementAndGet();
 
-        if (count >= 55 && count < 60)
-            Bukkit.broadcastMessage("§e§lFEAST§f O feast irá nascer em " + count + " segundos! §7(" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")");
-        else if (count >= 60) {
+        if (count == 595)
+            Bukkit.broadcastMessage("§e§lFEAST§f O feast irá nascer em 5 segundos! §7(" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")");
+        else if (count == 596)
+            Bukkit.broadcastMessage("§e§lFEAST§f O feast irá nascer em 4 segundos! §7(" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")");
+        else if (count == 597)
+            Bukkit.broadcastMessage("§e§lFEAST§f O feast irá nascer em 3 segundos! §7(" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")");
+        else if (count == 598)
+            Bukkit.broadcastMessage("§e§lFEAST§f O feast irá nascer em 2 segundos! §7(" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")");
+        else if (count == 599)
+            Bukkit.broadcastMessage("§e§lFEAST§f O feast irá nascer em 1 segundo! §7(" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")");
+
+        if (count == 600) {
             feast.generateChest();
             counter.set(0);
 
