@@ -75,19 +75,19 @@ public class DuelCommand extends BaseCommand {
                 if (requests.getIfPresent(targetUser) != null)
                     requests.getIfPresent(targetUser).remove(user);
 
-                user.setOpponent(targetUser);
-                targetUser.setOpponent(user);
-
                 try (Jedis jedis = jedisManager.getJedisPool().getResource()) {
-                    ShadowConfiguration configuration = CorePlugin.GSON.fromJson(jedis.get("shadow:config:" + target.getUniqueId()), ShadowConfiguration.class);
+                    ShadowConfiguration configuration = CorePlugin.GSON.fromJson(jedis.get("shadow:" + player.getUniqueId() + ":config:" + target.getUniqueId()), ShadowConfiguration.class);
 
                     if (configuration != null) {
-                        jedis.del("shadow:config:" + target.getUniqueId());
+                        jedis.del("shadow:" + player.getUniqueId() + ":config:" + target.getUniqueId());
 
                         jedis.setex("shadow:config:" + player.getUniqueId(), 5, CorePlugin.GSON.toJson(configuration));
                         jedis.setex("shadow:config:" + target.getUniqueId(), 5, CorePlugin.GSON.toJson(configuration));
                     }
                 }
+
+                user.setOpponent(targetUser);
+                targetUser.setOpponent(user);
 
                 game.onJoin(player);
 

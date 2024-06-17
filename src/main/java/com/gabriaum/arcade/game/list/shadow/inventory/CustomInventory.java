@@ -228,7 +228,7 @@ public class CustomInventory extends AbstractInventoryMenu {
 
         if (item.getItemMeta().getDisplayName().equalsIgnoreCase("§a§lDesafiar Jogador")) {
             String sword = inventory.getItem(20).getItemMeta().getDisplayName().split("de ")[1];
-            String armor = inventory.getItem(21).getItemMeta().getDisplayName().split("de ")[1];
+            String armor = !inventory.getItem(21).getItemMeta().getDisplayName().contains("Sem") ? inventory.getItem(21).getItemMeta().getDisplayName().split("de ")[1] : "";
             String refill = inventory.getItem(22).getItemMeta().getDisplayName();
 
             JedisManager manager = CorePlugin.getInstance().getJedisManager();
@@ -241,7 +241,13 @@ public class CustomInventory extends AbstractInventoryMenu {
                     .build();
 
             try (Jedis jedis = manager.getJedisPool().getResource()) {
-                jedis.setex("shadow:config:" + player.getUniqueId(), 80, CorePlugin.GSON.toJson(configuration));
+                if (jedis.exists("shadow:" + target.getUniqueId() + ":config:" + player.getUniqueId())) {
+                    player.sendMessage("§4§lERRO§f Você já enviou um desafio para este jogador.");
+                    player.closeInventory();
+                    return;
+                }
+
+                jedis.setex("shadow:" + target.getUniqueId() + ":config:" + player.getUniqueId(), 80, CorePlugin.GSON.toJson(configuration));
             }
 
             player.chat("/duel " + target.getName() + " custom");

@@ -53,9 +53,6 @@ public abstract class Game {
             for (Player online : Bukkit.getOnlinePlayers()) {
                 player.hidePlayer(online);
                 targetPlayer.hidePlayer(online);
-
-                online.hidePlayer(player);
-                online.hidePlayer(targetPlayer);
             }
 
             player.showPlayer(targetPlayer);

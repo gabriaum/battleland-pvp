@@ -57,10 +57,11 @@ public class UpdateListener implements Listener {
                 continue;
 
             ScoreBoard scoreBoard = entry.getValue();
-            Game game = user.getGame();
 
-            scoreBoard.setTitle("§8§l>> §6§l" + game.getScroller().next() + " §8§l<<");
-            scoreBoard.update();
+            for (Game game : ArcadeMain.getPlugin().getGameManager().values()) {
+                scoreBoard.setTitle("§8§l>> §6§l" + game.getScroller().next() + " §8§l<<");
+                scoreBoard.update();
+            }
         }
 
         /* League */

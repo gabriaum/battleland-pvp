@@ -2,6 +2,7 @@ package com.gabriaum.arcade.listener.impl.game;
 
 import com.gabriaum.arcade.ArcadeMain;
 import com.gabriaum.arcade.game.Game;
+import com.gabriaum.arcade.game.type.GameType;
 import com.gabriaum.arcade.user.User;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -79,9 +80,14 @@ public class GameListener implements Listener {
         if (item == null)
             return;
 
-        event.setCancelled(user.isProtect() || user.getKit().getKit().isKitItem(item.getItemStack()) || item.getType().equals(Material.COMPASS) || item.getType().name().contains("_SWORD"));
+        event.setCancelled(user.isProtect() || user.getKit().getKit().isKitItem(item.getItemStack()) || item.getItemStack().getType().name().contains("_SWORD") || item.getItemStack().getType().equals(Material.INK_SACK));
 
         if (!event.isCancelled()) {
+            if (user.getGame().getType().equals(GameType.SHADOW)) {
+                item.remove();
+                return;
+            }
+
             new BukkitRunnable() {
                 @Override
                 public void run() {
