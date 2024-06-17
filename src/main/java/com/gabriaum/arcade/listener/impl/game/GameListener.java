@@ -25,6 +25,7 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void connect(PlayerJoinEvent event) {
+        event.setJoinMessage(null);
         Player player = event.getPlayer();
         User user = ArcadeMain.getPlugin().getUserManager().get(player.getUniqueId());
 

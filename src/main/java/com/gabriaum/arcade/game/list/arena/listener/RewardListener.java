@@ -259,6 +259,7 @@ public class RewardListener implements Listener {
     @EventHandler
     public void disconnect(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        event.setQuitMessage(null);
 
         if (RewardManager.getZombieGuards().containsKey(player.getUniqueId())) {
             Zombie zombie = RewardManager.getZombieGuards().get(player.getUniqueId());
