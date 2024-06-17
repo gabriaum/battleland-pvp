@@ -39,6 +39,9 @@ public class CombatListener implements Listener {
         Player player = event.getEntity();
         Player target = event.getEntity().getKiller();
 
+        ArcadeMain.getPlugin().getShadowManager().remove(player.getUniqueId());
+        ArcadeMain.getPlugin().getShadowManager().remove(target.getUniqueId());
+
         User user = ArcadeMain.getPlugin().getUserManager().get(player.getUniqueId());
 
         if (user == null)

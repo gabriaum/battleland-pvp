@@ -61,8 +61,10 @@ public class GameListener implements Listener {
         User user = ArcadeMain.getPlugin().getUserManager().get(player.getUniqueId());
         User userDamager = ArcadeMain.getPlugin().getUserManager().get(damager.getUniqueId());
 
-        if (user == null || userDamager == null)
+        if (user == null || userDamager == null) {
+            event.setCancelled(true);
             return;
+        }
 
         event.setCancelled(user.isProtect() || userDamager.isProtect());
     }

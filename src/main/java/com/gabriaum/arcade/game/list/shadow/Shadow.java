@@ -95,8 +95,7 @@ public class Shadow extends Game {
             return;
         }
 
-        JedisManager jedisManager = CorePlugin.getInstance().getJedisManager();
-        ShadowConfiguration configuration = CorePlugin.GSON.fromJson(jedisManager.getJedisPool().getResource().get("shadow:config:" + player.getUniqueId()), ShadowConfiguration.class);
+        ShadowConfiguration configuration = ArcadeMain.getPlugin().getShadowManager().getShadowConfiguration(player.getUniqueId());
 
         if (configuration == null) {
             inventory.setItem(0, new ItemBuilder(Material.STONE_SWORD).setEnchant(Enchantment.DAMAGE_ALL, 1).create());

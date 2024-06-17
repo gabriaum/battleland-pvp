@@ -3,10 +3,7 @@ package com.gabriaum.arcade;
 import com.gabriaum.arcade.command.*;
 import com.gabriaum.arcade.event.type.UpdateEvent;
 import com.gabriaum.arcade.listener.ListenerLoader;
-import com.gabriaum.arcade.manager.CooldownManager;
-import com.gabriaum.arcade.manager.GameManager;
-import com.gabriaum.arcade.manager.QueueManager;
-import com.gabriaum.arcade.manager.UserManager;
+import com.gabriaum.arcade.manager.*;
 import com.gabriaum.arcade.user.User;
 import com.gabriaum.arcade.util.structure.type.Feast;
 import com.google.gson.JsonObject;
@@ -30,6 +27,7 @@ public class ArcadeMain extends JavaPlugin {
     private UserManager userManager;
     private QueueManager queueManager;
     private CooldownManager cooldownManager;
+    private ShadowManager shadowManager;
 
     @Setter
     private User topKillStreak;
@@ -57,6 +55,7 @@ public class ArcadeMain extends JavaPlugin {
         userManager = new UserManager();
         queueManager = new QueueManager();
         cooldownManager = new CooldownManager();
+        shadowManager = new ShadowManager();
 
         gameManager.load();
 
