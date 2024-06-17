@@ -84,26 +84,33 @@ public class CombatListener implements Listener {
             targetMember.save("arena");
         }
 
-            List<ItemStack> items = new ArrayList<>();
+        List<ItemStack> items = new ArrayList<>();
 
-            for (ItemStack item : player.getInventory().getContents()) {
-                if (item != null && (!item.getType().equals(Material.AIR) || !user.getKit().getKit().isKitItem(item) || !item.getType().equals(Material.COMPASS) || !item.getType().name().contains("_SWORD")))
-                    items.add(item);
-            }
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item == null || item.getType().equals(Material.AIR))
+                continue;
 
-            if (!items.isEmpty()) {
-                items.forEach(i -> {
-                    Item item = player.getWorld().dropItem(player.getLocation(), i);
+            if (user.getKit().getKit().isKitItem(item) || item.getType().equals(Material.COMPASS) || item.getType().name().contains("_SWORD"))
+                continue;
 
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            item.remove();
-                            cancel();
-                        }
-                    }.runTaskLater(ArcadeMain.getPlugin(), 20 * 3);
-                });
-            }
+            items.add(item);
+        }
+
+        System.out.println(items);
+
+        if (!items.isEmpty()) {
+            items.forEach(i -> {
+                Item item = player.getWorld().dropItem(player.getLocation(), i);
+
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        item.remove();
+                        cancel();
+                    }
+                }.runTaskLater(ArcadeMain.getPlugin(), 20 * 3);
+            });
+        }
 
         player.sendMessage("§c§lMORTE §fVocê morreu" + (target != null ? " para §e§l" + target.getName() : ""));
         player.sendMessage("§6§lRESPAWN §fVocê morreu e renasceu na Warp §e" + game.getType().getName() + "§f.");
@@ -154,8 +161,13 @@ public class CombatListener implements Listener {
             List<ItemStack> items = new ArrayList<>();
 
             for (ItemStack item : player.getInventory().getContents()) {
-                if (item != null && (!item.getType().equals(Material.AIR) || !user.getKit().getKit().isKitItem(item) || !item.getType().equals(Material.COMPASS) || !item.getType().name().contains("_SWORD")))
-                    items.add(item);
+                if (item == null || item.getType().equals(Material.AIR))
+                    continue;
+
+                if (user.getKit().getKit().isKitItem(item) || item.getType().equals(Material.COMPASS) || item.getType().name().contains("_SWORD"))
+                    continue;
+
+                items.add(item);
             }
 
             if (!items.isEmpty()) {

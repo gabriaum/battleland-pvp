@@ -11,13 +11,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -52,6 +50,23 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
+    public void damageByEntity(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player) || !(event.getDamager() instanceof Player))
+            return;
+
+        Player player = (Player) event.getEntity();
+        Player damager = (Player) event.getDamager();
+
+        User user = ArcadeMain.getPlugin().getUserManager().get(player.getUniqueId());
+        User userDamager = ArcadeMain.getPlugin().getUserManager().get(damager.getUniqueId());
+
+        if (user == null || userDamager == null)
+            return;
+
+        event.setCancelled(user.isProtect() || userDamager.isProtect());
+    }
+
+    @EventHandler
     public void drop(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
         User user = ArcadeMain.getPlugin().getUserManager().get(player.getUniqueId());
@@ -63,8 +78,6 @@ public class GameListener implements Listener {
 
         if (item == null)
             return;
-
-        System.out.println("Dropped item: " + item.getItemStack().getType().name());
 
         event.setCancelled(user.isProtect() || user.getKit().getKit().isKitItem(item.getItemStack()) || item.getType().equals(Material.COMPASS) || item.getType().name().contains("_SWORD"));
 
@@ -85,14 +98,14 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
-    public void deathDropClear(PlayerDeathEvent event) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (ItemStack item : event.getDrops())
-                    item.setType(Material.AIR);
-            }
-        }.runTaskLater(ArcadeMain.getPlugin(), 20 * 3);
+    public void pickup(PlayerPickupItemEvent event) {
+        Player player = event.getPlayer();
+        User user = ArcadeMain.getPlugin().getUserManager().get(player.getUniqueId());
+
+        if (user == null)
+            return;
+
+        event.setCancelled(user.isProtect());
     }
 
     @EventHandler
