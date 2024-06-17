@@ -35,6 +35,10 @@ public abstract class Game {
 
         Util.refresh(player);
 
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            player.showPlayer(online);
+        }
+
         if (user.getOpponent() == null) {
             user.setProtect(true);
             player.teleport(location);
@@ -45,6 +49,17 @@ public abstract class Game {
         if (user.getOpponent() != null && type.equals(GameType.SHADOW)) {
             User target = user.getOpponent();
             Player targetPlayer = Bukkit.getPlayer(target.getUniqueId());
+
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                player.hidePlayer(online);
+                targetPlayer.hidePlayer(online);
+
+                online.hidePlayer(player);
+                online.hidePlayer(targetPlayer);
+            }
+
+            player.showPlayer(targetPlayer);
+            targetPlayer.showPlayer(player);
 
             Util.refresh(targetPlayer);
 

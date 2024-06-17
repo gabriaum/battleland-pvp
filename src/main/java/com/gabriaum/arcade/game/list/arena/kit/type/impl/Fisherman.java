@@ -36,19 +36,21 @@ public class Fisherman extends Kit implements Listener {
     public void onFisherman(PlayerFishEvent event) {
         Player player = event.getPlayer();
 
-        if (event.getCaught() instanceof Player) {
-            Player caught = (Player) event.getCaught();
-            User user = getInstance().getUserManager().get(caught.getUniqueId());
+        if (hasKit(player.getUniqueId())) {
+            if (event.getCaught() instanceof Player) {
+                Player caught = (Player) event.getCaught();
+                User user = getInstance().getUserManager().get(caught.getUniqueId());
 
-            if (user == null || user.isProtect()) {
-                event.setCancelled(true);
-                return;
-            }
+                if (user == null || user.isProtect()) {
+                    event.setCancelled(true);
+                    return;
+                }
 
-            Block block = event.getHook().getLocation().getBlock();
+                Block block = event.getHook().getLocation().getBlock();
 
-            if (caught != block) {
-                caught.teleport(player.getPlayer().getLocation());
+                if (caught != block) {
+                    caught.teleport(player.getPlayer().getLocation());
+                }
             }
         }
     }

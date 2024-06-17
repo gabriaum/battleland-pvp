@@ -47,7 +47,7 @@ public class ArenaListener implements Listener {
         if (spawn == null)
             return;
 
-        if (user.isProtect() && location.distance(spawn) >= 28) {
+        if (user.isProtect() && location.distance(spawn) >= 15) {
             user.setProtect(false);
             game.sendKit(player);
 

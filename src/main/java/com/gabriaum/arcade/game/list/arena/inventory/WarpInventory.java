@@ -6,10 +6,13 @@ import com.gabriaum.arcade.game.type.GameType;
 import com.gabriaum.arcade.user.User;
 import com.solexgames.core.menu.AbstractInventoryMenu;
 import com.solexgames.core.util.builder.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 public class WarpInventory extends AbstractInventoryMenu {
 
@@ -50,20 +53,14 @@ public class WarpInventory extends AbstractInventoryMenu {
 
         ItemStack clickedItem = event.getCurrentItem();
 
-        Game game = null;
-
-        for (GameType gameType : GameType.values()) {
-            if (clickedItem.getType().equals(gameType.getIcon()) && clickedItem.getItemMeta().getDisplayName().equals("§b" + gameType.getName())) {
-                game = ArcadeMain.getPlugin().getGameManager().get(gameType);
-                break;
-            }
-        }
+        Game game = Arrays.stream(GameType.values()).filter(gameType -> clickedItem.getType().equals(gameType.getIcon()) && clickedItem.getItemMeta().getDisplayName().equals("§b" + gameType.getName())).findFirst().map(gameType -> ArcadeMain.getPlugin().getGameManager().get(gameType)).orElse(null);
 
         player.closeInventory();
 
         if (game != null) {
             user.setGame(game);
-            game.onJoin(player);
+
+            Bukkit.getScheduler().runTaskLater(ArcadeMain.getPlugin(), () -> game.onJoin(player), 1);
         }
     }
 }
