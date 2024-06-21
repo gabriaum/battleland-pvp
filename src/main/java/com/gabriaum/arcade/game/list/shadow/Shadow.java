@@ -96,9 +96,18 @@ public class Shadow extends Game {
         }
 
         ShadowConfiguration configuration = ArcadeMain.getPlugin().getShadowManager().getShadowConfiguration(player.getUniqueId());
+        Material helmet = Material.IRON_HELMET;
+        Material chestplate = Material.IRON_CHESTPLATE;
+        Material leggings = Material.IRON_LEGGINGS;
+        Material boots = Material.IRON_BOOTS;
 
         if (configuration == null) {
-            inventory.setItem(0, new ItemBuilder(Material.STONE_SWORD).setEnchant(Enchantment.DAMAGE_ALL, 1).create());
+            inventory.setItem(0, new ItemBuilder(Material.DIAMOND_SWORD).setEnchant(Enchantment.DAMAGE_ALL, 1).create());
+
+            inventory.setHelmet(new ItemStack(helmet));
+            inventory.setChestplate(new ItemStack(chestplate));
+            inventory.setLeggings(new ItemStack(leggings));
+            inventory.setBoots(new ItemStack(boots));
 
             for (int i = 0; i < 8; i++)
                 inventory.addItem(new ItemStack(Material.MUSHROOM_SOUP));
@@ -131,11 +140,6 @@ public class Shadow extends Game {
                     break;
                 }
             }
-
-            Material helmet = Material.AIR;
-            Material chestplate = Material.AIR;
-            Material leggings = Material.AIR;
-            Material boots = Material.AIR;
 
             switch (configuration.getArmorMaterialName().toLowerCase()) {
                 case "couro": {
@@ -175,6 +179,14 @@ public class Shadow extends Game {
                     chestplate = Material.DIAMOND_CHESTPLATE;
                     leggings = Material.DIAMOND_LEGGINGS;
                     boots = Material.DIAMOND_BOOTS;
+                    break;
+                }
+
+                default: {
+                    helmet = Material.AIR;
+                    chestplate = Material.AIR;
+                    leggings = Material.AIR;
+                    boots = Material.AIR;
                     break;
                 }
             }

@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -37,7 +38,7 @@ public class GameListener implements Listener {
         game.onJoin(player);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void damage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player))
             return;
@@ -51,7 +52,7 @@ public class GameListener implements Listener {
         event.setCancelled(user.isProtect());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void damageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player) || !(event.getDamager() instanceof Player))
             return;
@@ -63,6 +64,14 @@ public class GameListener implements Listener {
         User userDamager = ArcadeMain.getPlugin().getUserManager().get(damager.getUniqueId());
 
         if (user == null || userDamager == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (userDamager.getOpponent() != null && !userDamager.getOpponent().equals(user)) {
+            event.setCancelled(true);
+            return;
+        } else if  (user.getOpponent() != null && !user.getOpponent().equals(userDamager)) {
             event.setCancelled(true);
             return;
         }

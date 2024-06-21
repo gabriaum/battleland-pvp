@@ -70,12 +70,14 @@ public class FPS extends Game {
     @Override
     public void sendKit(Player player) {
         PlayerInventory inventory = player.getInventory();
-        ItemStack[] armorContents = { new ItemStack(Material.IRON_HELMET), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_BOOTS) };
 
         inventory.clear();
         inventory.setArmorContents(null);
 
-        inventory.setArmorContents(armorContents);
+        inventory.setHelmet(new ItemStack(Material.IRON_HELMET));
+        inventory.setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+        inventory.setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+        inventory.setBoots(new ItemStack(Material.IRON_BOOTS));
 
         inventory.setItem(0, new ItemBuilder(Material.DIAMOND_SWORD).setEnchant(Enchantment.DAMAGE_ALL, 1).create());
         inventory.setItem(13, new ItemStack(Material.BOWL, 64));

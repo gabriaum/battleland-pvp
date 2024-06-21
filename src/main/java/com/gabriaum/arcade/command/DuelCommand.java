@@ -2,6 +2,7 @@ package com.gabriaum.arcade.command;
 
 import com.gabriaum.arcade.ArcadeMain;
 import com.gabriaum.arcade.game.Game;
+import com.gabriaum.arcade.game.list.shadow.type.CombatType;
 import com.gabriaum.arcade.game.type.GameType;
 import com.gabriaum.arcade.manager.impl.ShadowConfiguration;
 import com.gabriaum.arcade.user.User;
@@ -11,9 +12,11 @@ import com.solexgames.core.CorePlugin;
 import com.solexgames.core.command.BaseCommand;
 import com.solexgames.core.command.annotation.Command;
 import com.solexgames.lib.commons.redis.JedisManager;
+import lombok.Getter;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import redis.clients.jedis.Jedis;
@@ -24,7 +27,8 @@ import java.util.concurrent.TimeUnit;
 @Command(label = "duel", aliases = {"1v1", "1vs1"})
 public class DuelCommand extends BaseCommand {
 
-    private final Cache<User, List<User>> requests = CacheBuilder.newBuilder()
+    @Getter
+    private static final Cache<User, Map<CombatType, List<User>>> requests = CacheBuilder.newBuilder()
             .expireAfterWrite(1, TimeUnit.MINUTES)
             .build();
 
@@ -81,12 +85,14 @@ public class DuelCommand extends BaseCommand {
             return true;
         }
 
-        List<User> userRequests = requests.getIfPresent(user);
-        if (userRequests != null && userRequests.contains(targetUser)) {
-            clearRequestsForUser(user);
-            clearRequestsForUser(targetUser);
+        List<User> playerRequests = requests.getIfPresent(user).get(player.getItemInHand().getType().equals(Material.BLAZE_ROD) ? CombatType.NORMAL : CombatType.CUSTOM);
+        List<User> targetRequests = requests.getIfPresent(targetUser).get(player.getItemInHand().getType().equals(Material.BLAZE_ROD) ? CombatType.NORMAL : CombatType.CUSTOM);
 
-            handleShadowConfiguration(player, target);
+        if ((targetRequests != null && targetRequests.contains(user)) || playerRequests != null && playerRequests.contains(targetUser)) {
+            clearRequestsForUser(user, targetUser, !player.getItemInHand().getType().equals(Material.BLAZE_ROD));
+
+            if (!player.getItemInHand().getType().equals(Material.BLAZE_ROD))
+                handleShadowConfiguration(player, target);
 
             user.setOpponent(targetUser);
             targetUser.setOpponent(user);
@@ -116,10 +122,11 @@ public class DuelCommand extends BaseCommand {
             return true;
         }
 
-        List<User> targetRequests = requests.getIfPresent(targetUser);
-        if (targetRequests != null && targetRequests.contains(user)) {
-            clearRequestsForUser(user);
-            clearRequestsForUser(targetUser);
+        Map<CombatType, List<User>> playerRequests = DuelCommand.getRequests().getIfPresent(user);
+        Map<CombatType, List<User>> targetRequests = DuelCommand.getRequests().getIfPresent(targetUser);
+
+        if ((targetRequests != null || playerRequests != null) && (targetRequests != null && targetRequests.containsKey(CombatType.CUSTOM) && targetRequests.get(CombatType.CUSTOM).contains(user)) || (playerRequests != null && playerRequests.containsKey(CombatType.CUSTOM) && playerRequests.get(CombatType.CUSTOM).contains(targetUser))) {
+            clearRequestsForUser(user, targetUser, !player.getItemInHand().getType().equals(Material.BLAZE_ROD));
 
             player.sendMessage("§aVocê aceitou o pedido de duelo de " + target.getName());
             target.sendMessage("§aO jogador " + player.getName() + " aceitou o seu pedido de duelo.");
@@ -128,35 +135,40 @@ public class DuelCommand extends BaseCommand {
             targetUser.setOpponent(user);
 
             user.getGame().onJoin(player);
-
             return true;
         }
 
         boolean custom = args.length >= 2 && args[1].equalsIgnoreCase("custom");
 
         if (targetRequests == null) {
+            Map<CombatType, List<User>> map = new HashMap<>();
             List<User> list = new ArrayList<>();
 
             list.add(user);
+            map.put(custom ? CombatType.CUSTOM : CombatType.NORMAL, list);
 
-            requests.put(targetUser, list);
+            requests.put(targetUser, map);
         } else {
-            targetRequests.add(user);
+            targetRequests.put(custom ? CombatType.CUSTOM : CombatType.NORMAL, Arrays.asList(user));
         }
-
-        TextComponent accept = new TextComponent("§eClique §b§lAQUI§e para aceitar!");
-        accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/duel ac " + player.getName()));
 
         player.sendMessage("§aVocê enviou um pedido de duelo " + (custom ? "customizado " : "") + "para " + target.getName());
         target.sendMessage("§eVocê recebeu um pedido de duelo " + (custom ? "customizado " : "") + "de " + player.getName());
-        target.spigot().sendMessage(accept);
-
         return true;
     }
 
-    private void clearRequestsForUser(User user) {
+    private void clearRequestsForUser(User user, User target, boolean custom) {
+        if (!custom) {
+            try (Jedis jedis = CorePlugin.getInstance().getJedisManager().getJedisPool().getResource()) {
+                jedis.del("shadow:" + user.getUniqueId() + ":config:" + target.getUniqueId());
+                jedis.del("shadow:" + target.getUniqueId() + ":config:" + user.getUniqueId());
+            }
+        }
+
         requests.invalidate(user);
         requests.asMap().values().forEach(list -> list.remove(user));
+
+        ArcadeMain.getPlugin().getQueueManager().remove(user.getUniqueId());
     }
 
     private void handleShadowConfiguration(Player player, Player target) {
@@ -172,6 +184,9 @@ public class DuelCommand extends BaseCommand {
                 map.put(target.getUniqueId(), configuration);
                 ArcadeMain.getPlugin().getShadowManager().put(player.getUniqueId(), map);
             }
+
+            jedis.del("shadow:" + player.getUniqueId() + ":config:" + target.getUniqueId());
+            jedis.del("shadow:" + target.getUniqueId() + ":config:" + player.getUniqueId());
         }
     }
 }

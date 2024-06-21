@@ -50,13 +50,15 @@ public abstract class Game {
             User target = user.getOpponent();
             Player targetPlayer = Bukkit.getPlayer(target.getUniqueId());
 
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                player.hidePlayer(online);
-                targetPlayer.hidePlayer(online);
-            }
+            Bukkit.getScheduler().runTaskLater(ArcadeMain.getPlugin(), () -> {
+                for (Player online : Bukkit.getOnlinePlayers()) {
+                    player.hidePlayer(online);
+                    targetPlayer.hidePlayer(online);
+                }
 
-            player.showPlayer(targetPlayer);
-            targetPlayer.showPlayer(player);
+                player.showPlayer(targetPlayer);
+                targetPlayer.showPlayer(player);
+            }, 1);
 
             Util.refresh(targetPlayer);
 

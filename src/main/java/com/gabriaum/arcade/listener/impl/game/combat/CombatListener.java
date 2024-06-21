@@ -23,6 +23,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -73,6 +74,15 @@ public class CombatListener implements Listener {
             targetArena.addKill();
             targetMember.addCoins(6);
             targetMember.addXP(9);
+
+            if (targetUser.getGame().getType().equals(GameType.FPS)) {
+                PlayerInventory inventory = target.getInventory();
+
+                inventory.setHelmet(new ItemStack(Material.IRON_HELMET));
+                inventory.setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+                inventory.setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+                inventory.setBoots(new ItemStack(Material.IRON_BOOTS));
+            }
 
             target.sendMessage("§e§lKILL §fVocê matou §e§l" + player.getName());
             target.sendMessage("§6§lMONEY §fVocê recebeu §6§l6 MOEDAS");
@@ -212,6 +222,15 @@ public class CombatListener implements Listener {
             targetArena.addKill();
             targetMember.addCoins(6);
             targetMember.addXP(9);
+
+            if (targetUser.getGame().getType().equals(GameType.FPS)) {
+                PlayerInventory inventory = target.getInventory();
+
+                inventory.setHelmet(new ItemStack(Material.IRON_HELMET));
+                inventory.setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+                inventory.setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+                inventory.setBoots(new ItemStack(Material.IRON_BOOTS));
+            }
 
             target.sendMessage("§e§lKILL §fVocê matou §e§l" + player.getName());
             target.sendMessage("§6§lMONEY §fVocê recebeu §6§l6 MOEDAS");
