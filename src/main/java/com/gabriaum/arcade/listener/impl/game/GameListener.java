@@ -49,6 +49,11 @@ public class GameListener implements Listener {
         if (user == null)
             return;
 
+        if (user.getGame().getType().equals(GameType.LAVA) && event.getCause().equals(EntityDamageEvent.DamageCause.LAVA)) {
+            event.setCancelled(false);
+            return;
+        }
+
         event.setCancelled(user.isProtect());
     }
 
