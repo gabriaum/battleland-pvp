@@ -97,8 +97,12 @@ public class GameListener implements Listener {
         if (item == null)
             return;
 
+        if (user.getGame().getType().equals(GameType.LAVA)) {
+            event.setCancelled(false);
+            return;
+        }
 
-        event.setCancelled(!user.getGame().getType().equals(GameType.LAVA) || user.isProtect() || user.getKit().getKit().isKitItem(item.getItemStack()) || item.getItemStack().getType().name().contains("_SWORD") || item.getItemStack().getType().equals(Material.INK_SACK));
+        event.setCancelled(user.isProtect() || user.getKit().getKit().isKitItem(item.getItemStack()) || item.getItemStack().getType().name().contains("_SWORD") || item.getItemStack().getType().equals(Material.INK_SACK));
 
         if (!event.isCancelled()) {
             if (user.getGame().getType().equals(GameType.SHADOW)) {
