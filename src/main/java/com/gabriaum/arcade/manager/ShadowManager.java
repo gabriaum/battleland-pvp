@@ -7,23 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ShadowManager extends HashMap<UUID, Map<UUID, ShadowConfiguration>> {
+public class ShadowManager extends HashMap<UUID, ShadowConfiguration> {
 
     public ShadowConfiguration getShadowConfiguration(UUID uniqueId) {
         if (containsKey(uniqueId))
-            return get(uniqueId).values().stream().findFirst().orElse(null);
+            return get(uniqueId);
 
-        ShadowConfiguration configuration = null;
-        Collection<Map<UUID, ShadowConfiguration>> configurations = values();
-
-        for (Map<UUID, ShadowConfiguration> map : configurations) {
-            if (map.containsKey(uniqueId)) {
-                configuration = map.get(uniqueId);
-                break;
-            }
-        }
-
-        return configuration;
+        return null;
     }
 
     public void removeAll(UUID uniqueId) {

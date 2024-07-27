@@ -1,6 +1,7 @@
 package com.gabriaum.arcade.game.list.arena.listener;
 
 import com.gabriaum.arcade.ArcadeMain;
+import com.gabriaum.arcade.event.type.UpdateEvent;
 import com.gabriaum.arcade.event.type.arena.RewardEvent;
 import com.gabriaum.arcade.game.Game;
 import com.gabriaum.arcade.game.type.GameType;
@@ -11,6 +12,7 @@ import com.solexgames.core.util.builder.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
@@ -18,10 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -32,8 +31,8 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RewardListener implements Listener {
 
@@ -49,12 +48,26 @@ public class RewardListener implements Listener {
 
         switch (event.getStreak()) {
             case 10: {
-                inventory.addItem(new ItemStack(Material.GOLDEN_APPLE, 10));
+                AtomicInteger slot = new AtomicInteger();
+
+                Arrays.stream(inventory.getContents()).filter(item -> item == null || item.getType().equals(Material.AIR) || item.getType().equals(Material.MUSHROOM_SOUP)).findFirst().ifPresent(item -> {
+                    slot.set(inventory.first(item));
+                    inventory.setItem(slot.get(), new ItemStack(Material.GOLDEN_APPLE, 10));
+                });
+
+                inventory.setItem(slot.get(), new ItemStack(Material.GOLDEN_APPLE, 10));
                 break;
             }
 
             case 20: {
-                inventory.addItem(new ItemBuilder(Material.MUSHROOM_SOUP).setAmount(2)
+                AtomicInteger slot = new AtomicInteger();
+
+                Arrays.stream(inventory.getContents()).filter(item -> item == null || item.getType().equals(Material.AIR) || item.getType().equals(Material.MUSHROOM_SOUP)).findFirst().ifPresent(item -> {
+                    slot.set(inventory.first(item));
+                    inventory.setItem(slot.get(), new ItemStack(Material.GOLDEN_APPLE, 10));
+                });
+
+                inventory.setItem(slot.get(), new ItemBuilder(Material.MUSHROOM_SOUP).setAmount(2)
                         .setDisplayName("§bSopa Encantada")
                         .create());
 
@@ -62,7 +75,14 @@ public class RewardListener implements Listener {
             }
 
             case 30: {
-                inventory.addItem(new ItemBuilder(Material.MONSTER_EGG, 95)
+                AtomicInteger slot = new AtomicInteger();
+
+                Arrays.stream(inventory.getContents()).filter(item -> item == null || item.getType().equals(Material.AIR) || item.getType().equals(Material.MUSHROOM_SOUP)).findFirst().ifPresent(item -> {
+                    slot.set(inventory.first(item));
+                    inventory.setItem(slot.get(), new ItemStack(Material.GOLDEN_APPLE, 10));
+                });
+
+                inventory.setItem(slot.get(), new ItemBuilder(Material.MONSTER_EGG, 95)
                         .setDisplayName("§cCão de Ataque")
                         .create());
 
@@ -92,15 +112,43 @@ public class RewardListener implements Listener {
             }
 
             case 50: {
-                Zombie zombie = RewardManager.getZombieGuards().get(player.getUniqueId());
-
-                if (zombie == null || zombie.isDead())
-                    return;
-
-                ItemStack attack = new ItemBuilder(Material.STICK).setEnchant(Enchantment.DAMAGE_ALL, 2).create();
-
-                zombie.getEquipment().setItemInHand(attack);
+                RewardManager.getNucks().put(player.getUniqueId(), new AtomicInteger(10));
                 break;
+            }
+        }
+    }
+
+    @EventHandler
+    public void update(UpdateEvent event) {
+        for (Map.Entry<UUID, AtomicInteger> entry : RewardManager.getNucks().entrySet()) {
+            Player player = Bukkit.getPlayer(entry.getKey());
+            AtomicInteger nucks = entry.getValue();
+
+            if (nucks.get() <= 0) {
+                int nuked = 0;
+
+                for (Entity entity : player.getWorld().getNearbyEntities(player.getLocation().clone(), 5, 5 ,5)) {
+                    if (entity instanceof Player) {
+                        Player target = (Player) entity;
+                        User user = ArcadeMain.getPlugin().getUserManager().get(target.getUniqueId());
+
+                        if (user == null || target.equals(player))
+                            continue;
+
+                        target.damage(target.getHealth(), player);
+                        nuked += 1;
+                    }
+                }
+
+                player.sendMessage("§eVocê explodiu §c" + nuked + "§e jogadores!");
+                RewardManager.getNucks().remove(player.getUniqueId());
+                return;
+            }
+
+            if (nucks.get() > 0) {
+                Bukkit.broadcastMessage("§eArma nuclear tática em ação! §c" + nucks.get());
+
+                nucks.decrementAndGet();
             }
         }
     }
@@ -253,6 +301,29 @@ public class RewardListener implements Listener {
                     RewardManager.getWolves().remove(player.getUniqueId());
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void death(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+
+        if (RewardManager.getZombieGuards().containsKey(player.getUniqueId())) {
+            Zombie zombie = RewardManager.getZombieGuards().get(player.getUniqueId());
+
+            if (zombie != null && !zombie.isDead())
+                zombie.remove();
+
+            RewardManager.getZombieGuards().remove(player.getUniqueId());
+        }
+
+        if (RewardManager.getWolves().containsKey(player.getUniqueId())) {
+            for (Wolf wolf : RewardManager.getWolves().get(player.getUniqueId())) {
+                if (wolf != null && !wolf.isDead())
+                    wolf.remove();
+            }
+
+            RewardManager.getWolves().remove(player.getUniqueId());
         }
     }
 

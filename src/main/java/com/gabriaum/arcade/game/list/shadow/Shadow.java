@@ -95,7 +95,11 @@ public class Shadow extends Game {
             return;
         }
 
-        ShadowConfiguration configuration = ArcadeMain.getPlugin().getShadowManager().getShadowConfiguration(player.getUniqueId());
+        ShadowConfiguration configuration = null;
+
+        if (ArcadeMain.getPlugin().getShadowManager().containsKey(player.getUniqueId()))
+            configuration = ArcadeMain.getPlugin().getShadowManager().getShadowConfiguration(player.getUniqueId());
+
         Material helmet = Material.IRON_HELMET;
         Material chestplate = Material.IRON_CHESTPLATE;
         Material leggings = Material.IRON_LEGGINGS;

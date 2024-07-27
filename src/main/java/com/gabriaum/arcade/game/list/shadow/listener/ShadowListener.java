@@ -45,27 +45,6 @@ public class ShadowListener implements Listener {
                     if (user == null || targetUser == null)
                         return;
 
-                    Map<CombatType, List<User>> playerRequests = DuelCommand.getRequests().getIfPresent(user);
-                    Map<CombatType, List<User>> targetRequests = DuelCommand.getRequests().getIfPresent(targetUser);
-
-                    if (playerRequests != null) {
-                        List<User> users = playerRequests.get(CombatType.CUSTOM);
-
-                        if (users != null && users.contains(targetUser)) {
-                            player.chat("/duel ac " + target.getName());
-                            return;
-                        }
-                    }
-
-                    if (targetRequests != null) {
-                        List<User> users = targetRequests.get(CombatType.CUSTOM);
-
-                        if (users != null && users.contains(user)) {
-                            player.chat("/duel ac " + target.getName());
-                            return;
-                        }
-                    }
-
                     new CustomInventory(player, target).open(player);
                     return;
                 }
